@@ -112,6 +112,13 @@ const BaseEventTypeUpdateInput: z.ZodType<TUpdateInputSchema> = z
     slug: z.string().optional(),
     description: z.string().nullable().optional(),
     interfaceLanguage: z.string().nullable().optional(),
+    badge: z
+      .string()
+      .trim()
+      .max(30)
+      .transform((value) => value || null)
+      .nullable()
+      .optional(),
     position: z.number().int().optional(),
     locations: eventTypeLocations.nullable().optional(),
     length: z.number().min(1).optional(),

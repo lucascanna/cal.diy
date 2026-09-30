@@ -130,6 +130,17 @@ export const EventSetupTab = (
             data-testid="event-title"
             {...formMethods.register("title")}
           />
+          {!team && (
+            <TextField
+              label={t("event_type_badge")}
+              placeholder={t("event_type_badge_placeholder")}
+              hint={t("event_type_badge_hint")}
+              maxLength={30}
+              defaultValue={eventType.badge ?? ""}
+              data-testid="event-badge"
+              {...formMethods.register("badge", { setValueAs: (value: string) => value.trim() || null })}
+            />
+          )}
           <div>
             {isPlatform ? (
               <TextAreaField

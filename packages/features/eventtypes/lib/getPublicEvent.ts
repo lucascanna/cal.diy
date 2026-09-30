@@ -73,6 +73,7 @@ export const getPublicEventSelect = (fetchAllUsers: boolean) => {
     title: true,
     description: true,
     interfaceLanguage: true,
+    badge: true,
     eventName: true,
     slug: true,
     isInstantEvent: true,
@@ -609,6 +610,7 @@ export const getPublicEvent = async (
     disableRescheduling: event.disableRescheduling,
     allowReschedulingCancelledBookings: event.allowReschedulingCancelledBookings,
     interfaceLanguage: event.interfaceLanguage,
+    badge: event.badge,
   };
 };
 

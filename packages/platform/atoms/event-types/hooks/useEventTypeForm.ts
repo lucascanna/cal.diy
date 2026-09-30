@@ -44,6 +44,7 @@ export const useEventTypeForm = ({
       title: eventType.title,
       id: eventType.id,
       slug: eventType.slug,
+      badge: eventType.badge ?? null,
       afterEventBuffer: eventType.afterEventBuffer,
       beforeEventBuffer: eventType.beforeEventBuffer,
       eventName: eventType.eventName || "",

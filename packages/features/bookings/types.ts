@@ -64,6 +64,7 @@ export type BookerEvent = Pick<
   | "disableCancelling"
   | "disableRescheduling"
   | "interfaceLanguage"
+  | "badge"
   | "team"
   | "owner"
 > & {

@@ -71,6 +71,7 @@ type UserPageProps = {
     | "recurringEvent"
     | "seatsPerTimeSlot"
     | "schedulingType"
+    | "badge"
   >)[];
   isOrgSEOIndexable: boolean | undefined;
 } & EmbedProps;

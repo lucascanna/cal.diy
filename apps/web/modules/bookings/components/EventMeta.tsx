@@ -11,6 +11,7 @@ import { markdownToSafeHTMLClient } from "@calcom/lib/markdownToSafeHTMLClient";
 import { CURRENT_TIMEZONE } from "@calcom/lib/timezoneConstants";
 import type { EventTypeTranslation } from "@calcom/prisma/client";
 import { EventTypeAutoTranslatedField } from "@calcom/prisma/enums";
+import { Badge } from "@calcom/ui/components/badge";
 import { EventMetaBlock } from "@calcom/web/modules/bookings/components/event-meta/Details";
 import { SeatsAvailabilityText } from "@calcom/web/modules/bookings/components/SeatsAvailabilityText";
 import { m } from "framer-motion";
@@ -70,6 +71,7 @@ export const EventMeta = ({
     | "entity"
     | "description"
     | "title"
+    | "badge"
     | "metadata"
     | "locations"
     | "currency"
@@ -176,6 +178,11 @@ export const EventMeta = ({
           <EventTitle className={`${classNames?.eventMetaTitle} my-2`}>
             {translatedTitle ?? event?.title}
           </EventTitle>
+          {event.badge && (
+            <Badge variant="blue" className="mb-2" data-testid="event-meta-badge">
+              {event.badge}
+            </Badge>
+          )}
           {(event.description || translatedDescription) && (
             <EventMetaBlock data-testid="event-meta-description" contentClassName="mb-8">
               <ScrollableWithGradients

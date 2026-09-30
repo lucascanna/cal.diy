@@ -93,6 +93,7 @@ export type FormValues = {
   eventName: string;
   slug: string;
   interfaceLanguage: string | null;
+  badge: string | null;
   isInstantEvent: boolean;
   instantMeetingParameters: string[];
   instantMeetingExpiryTimeOffsetInSeconds: number;
@@ -329,6 +330,7 @@ export type EventTypeUpdateInput = {
   slug?: string;
   description?: string | null;
   interfaceLanguage?: string | null;
+  badge?: string | null;
   position?: number;
   locations?: EventTypeLocation[] | null;
   length?: number;
