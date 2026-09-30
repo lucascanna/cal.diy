@@ -138,7 +138,7 @@ export const EventSetupTab = (
               maxLength={30}
               defaultValue={eventType.badge ?? ""}
               data-testid="event-badge"
-              {...formMethods.register("badge", { setValueAs: (value: string) => value.trim() || null })}
+              {...formMethods.register("badge", { setValueAs: (value: string | null) => value?.trim() || null })}
             />
           )}
           <div>
