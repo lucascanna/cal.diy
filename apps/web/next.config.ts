@@ -127,6 +127,19 @@ if (process.env.GOOGLE_API_CREDENTIALS && !validJson(process.env.GOOGLE_API_CRED
   );
 }
 
+// Server Actions reject requests whose Origin differs from the Host they arrive with, which is
+// always the case behind a reverse proxy that rewrites Host. The app's own public URL is a
+// legitimate origin regardless of the Host the proxy forwards.
+function getServerActionsAllowedOrigins(): string[] {
+  const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
+  if (!webappUrl) return [];
+  try {
+    return [new URL(webappUrl).host];
+  } catch {
+    return [];
+  }
+}
+
 const plugins: NextConfigPlugin[] = [];
 
 if (process.env.ANALYZE === "true") {
@@ -235,6 +248,9 @@ const nextConfig = (phase: string): NextConfig => {
     ],
     experimental: {
       optimizePackageImports: ["@calcom/ui"],
+      serverActions: {
+        allowedOrigins: getServerActionsAllowedOrigins(),
+      },
     },
     productionBrowserSourceMaps: true,
     transpilePackages: [
