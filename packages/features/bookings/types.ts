@@ -51,6 +51,7 @@ export type BookerEvent = Pick<
   | "schedule"
   | "seatsPerTimeSlot"
   | "title"
+  | "badgeLabel"
   | "description"
   | "forwardParamsSuccessRedirect"
   | "successRedirectUrl"

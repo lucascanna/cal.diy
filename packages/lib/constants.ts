@@ -72,6 +72,7 @@ export const IS_SELF_HOSTED = !CAL_DOMAINS.some((domain) => WEBAPP_HOSTNAME.ends
 export const EMBED_LIB_URL = process.env.NEXT_PUBLIC_EMBED_LIB_URL || `${WEBAPP_URL}/embed/embed.js`;
 export const TRIAL_LIMIT_DAYS = 14;
 export const MAX_SEATS_PER_TIME_SLOT = 1000;
+export const MAX_EVENT_TYPE_BADGE_LABEL_LENGTH = 25;
 
 /** Maximum duration allowed for an event in minutes (24 hours) */
 export const MAX_EVENT_DURATION_MINUTES = 1440;

@@ -92,6 +92,7 @@ export type FormValues = {
   eventTitle: string;
   eventName: string;
   slug: string;
+  badgeLabel: string | null;
   interfaceLanguage: string | null;
   isInstantEvent: boolean;
   instantMeetingParameters: string[];
@@ -328,6 +329,7 @@ export type EventTypeUpdateInput = {
   title?: string;
   slug?: string;
   description?: string | null;
+  badgeLabel?: string | null;
   interfaceLanguage?: string | null;
   position?: number;
   locations?: EventTypeLocation[] | null;

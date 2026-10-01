@@ -137,6 +137,7 @@ const commons = {
   rrResetInterval: null,
   rrTimestampBasis: null,
   interfaceLanguage: null,
+  badgeLabel: null,
   customReplyToEmail: null,
   restrictionScheduleId: null,
   useBookerTimezone: false,

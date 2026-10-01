@@ -8,7 +8,11 @@ import type {
   SelectClassNames,
   SettingsToggleClassNames,
 } from "@calcom/features/eventtypes/lib/types";
-import { MAX_EVENT_DURATION_MINUTES, MIN_EVENT_DURATION_MINUTES } from "@calcom/lib/constants";
+import {
+  MAX_EVENT_DURATION_MINUTES,
+  MAX_EVENT_TYPE_BADGE_LABEL_LENGTH,
+  MIN_EVENT_DURATION_MINUTES,
+} from "@calcom/lib/constants";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { md } from "@calcom/lib/markdownIt";
 import { slugify } from "@calcom/lib/slugify";
@@ -110,6 +114,8 @@ export const EventSetupTab = (
   const descriptionLockedProps = shouldLockDisableProps("description");
   const urlLockedProps = shouldLockDisableProps("slug");
   const titleLockedProps = shouldLockDisableProps("title");
+  // Badges are only rendered on a user's own public profile and booking pages, so team event types don't get one.
+  const canSetBadgeLabel = !isPlatform && !eventType.teamId;
 
   return (
     <div>
@@ -193,6 +199,19 @@ export const EventSetupTab = (
               setValueAs: (v) => slugify(v),
             })}
           />
+          {canSetBadgeLabel && (
+            <TextField
+              label={t("event_type_badge")}
+              placeholder={t("event_type_badge_placeholder")}
+              hint={t("event_type_badge_hint", { max: MAX_EVENT_TYPE_BADGE_LABEL_LENGTH })}
+              maxLength={MAX_EVENT_TYPE_BADGE_LABEL_LENGTH}
+              defaultValue={eventType.badgeLabel ?? ""}
+              data-testid="event-badge-label"
+              {...formMethods.register("badgeLabel", {
+                setValueAs: (value: string | null) => value?.trim() || null,
+              })}
+            />
+          )}
         </div>
         <div
           className={classNames(

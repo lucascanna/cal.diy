@@ -26,17 +26,18 @@ type BaseEventType = Prisma.EventTypeGetPayload<{
 }>;
 
 type RawEventType = BaseEventType & {
+  badgeLabel: string | null;
   metadata: Record<string, any> | null;
 };
 
 const getEventTypesWithHiddenFromDB = async (userId: number) => {
   const eventTypes = await prisma.$queryRaw<RawEventType[]>`
-    SELECT data."id", data."title", data."description", data."length", data."schedulingType"::text,
+    SELECT data."id", data."title", data."badgeLabel", data."description", data."length", data."schedulingType"::text,
       data."recurringEvent", data."slug", data."hidden", data."price", data."currency",
       data."lockTimeZoneToggleOnBookingPage", data."lockedTimeZone", data."requiresConfirmation", data."requiresBookerEmailVerification",
       data."metadata", data."canSendCalVideoTranscriptionEmails"
       FROM (
-        SELECT "EventType"."id", "EventType"."title", "EventType"."description",
+        SELECT "EventType"."id", "EventType"."title", "EventType"."badgeLabel", "EventType"."description",
           "EventType"."position", "EventType"."length", "EventType"."schedulingType"::text,
           "EventType"."recurringEvent", "EventType"."slug", "EventType"."hidden",
           "EventType"."price", "EventType"."currency",
@@ -46,7 +47,7 @@ const getEventTypesWithHiddenFromDB = async (userId: number) => {
         FROM "EventType"
         WHERE "EventType"."teamId" IS NULL AND "EventType"."userId" = ${userId}
         UNION
-        SELECT "EventType"."id", "EventType"."title", "EventType"."description",
+        SELECT "EventType"."id", "EventType"."title", "EventType"."badgeLabel", "EventType"."description",
         "EventType"."position", "EventType"."length", "EventType"."schedulingType"::text,
         "EventType"."recurringEvent", "EventType"."slug", "EventType"."hidden",
         "EventType"."price", "EventType"."currency",

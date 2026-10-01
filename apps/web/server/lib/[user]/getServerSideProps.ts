@@ -58,6 +58,7 @@ type UserPageProps = {
     EventType,
     | "id"
     | "title"
+    | "badgeLabel"
     | "slug"
     | "length"
     | "hidden"

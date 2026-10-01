@@ -4771,5 +4771,8 @@
   "user_updated_successfully": "User updated successfully.",
   "error_updating_user": "There was an error updating this user.",
   "please_reschedule": "Please reschedule.",
+  "event_type_badge": "Badge",
+  "event_type_badge_placeholder": "e.g. Popular or Free consultation",
+  "event_type_badge_hint": "Shown next to the title on your public page and booking page. Up to {{max}} characters. Leave empty to remove it.",
   "ADD_NEW_STRINGS_ABOVE_THIS_LINE_TO_PREVENT_MERGE_CONFLICTS": "↑↑↑↑↑↑↑↑↑↑↑↑↑ Add your new strings above here ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑"
 }

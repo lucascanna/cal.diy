@@ -8,6 +8,7 @@ import type {
   HostInput,
 } from "@calcom/features/eventtypes/lib/types";
 import { MAX_SEATS_PER_TIME_SLOT } from "@calcom/lib/constants";
+import { eventTypeBadgeLabel } from "@calcom/lib/zod/eventTypeBadgeLabel";
 import {
   customInputSchema,
   EventTypeMetaDataSchema,
@@ -111,6 +112,7 @@ const BaseEventTypeUpdateInput: z.ZodType<TUpdateInputSchema> = z
     title: z.string().min(1).optional(),
     slug: z.string().optional(),
     description: z.string().nullable().optional(),
+    badgeLabel: eventTypeBadgeLabel.nullable().optional(),
     interfaceLanguage: z.string().nullable().optional(),
     position: z.number().int().optional(),
     locations: eventTypeLocations.nullable().optional(),

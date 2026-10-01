@@ -72,6 +72,7 @@ export const getPublicEventSelect = (fetchAllUsers: boolean) => {
     id: true,
     title: true,
     description: true,
+    badgeLabel: true,
     interfaceLanguage: true,
     eventName: true,
     slug: true,
