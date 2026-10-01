@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
-
+import prismaMock from "@calcom/testing/lib/__mocks__/prismaMock";
 import { Prisma } from "@calcom/prisma/client";
+import { describe, expect, it } from "vitest";
+import { updateHandler } from "./update.handler";
 
 describe("update.handler", () => {
   describe("bookingFields null to Prisma.DbNull transformation", () => {
@@ -54,6 +55,35 @@ describe("update.handler", () => {
       expect(nullResult).toBe(Prisma.DbNull);
       expect(emptyArrayResult).toEqual([]);
       expect(nullResult).not.toEqual(emptyArrayResult);
+    });
+  });
+
+  describe("isPinned", () => {
+    const ctx = {
+      user: {
+        id: 1,
+        username: "owner",
+        profile: { id: null },
+        userLevelSelectedCalendars: [],
+        organizationId: null,
+        email: "owner@example.com",
+        locale: "en",
+      },
+      prisma: prismaMock,
+    };
+
+    it("rejects pinning a team event type", async () => {
+      prismaMock.eventType.findUniqueOrThrow.mockResolvedValue({
+        id: 10,
+        team: { id: 5 },
+        hostGroups: [],
+      } as unknown as Awaited<ReturnType<typeof prismaMock.eventType.findUniqueOrThrow>>);
+
+      await expect(updateHandler({ ctx, input: { id: 10, isPinned: true } })).rejects.toMatchObject({
+        code: "BAD_REQUEST",
+        message: "Only personal event types can be pinned.",
+      });
+      expect(prismaMock.eventType.update).not.toHaveBeenCalled();
     });
   });
 });

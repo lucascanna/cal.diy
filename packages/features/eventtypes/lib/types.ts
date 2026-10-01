@@ -334,6 +334,7 @@ export type EventTypeUpdateInput = {
   length?: number;
   offsetStart?: number;
   hidden?: boolean;
+  isPinned?: boolean;
   userId?: number | null;
   profileId?: number | null;
   teamId?: number | null;

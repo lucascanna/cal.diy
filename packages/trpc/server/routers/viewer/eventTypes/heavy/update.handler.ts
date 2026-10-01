@@ -180,6 +180,11 @@ export const updateHandler = async ({ ctx, input }: UpdateOptions) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
+  // A pin orders one user's personal dashboard; team event types are shared, so there is no single owner to pin for
+  if (rest.isPinned !== undefined && eventType.team) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Only personal event types can be pinned." });
+  }
+
   const finalSeatsPerTimeSlot =
     seatsPerTimeSlot === undefined ? eventType.seatsPerTimeSlot : seatsPerTimeSlot;
   const finalRecurringEvent = recurringEvent === undefined ? eventType.recurringEvent : recurringEvent;

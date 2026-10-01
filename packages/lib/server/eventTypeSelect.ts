@@ -9,6 +9,7 @@ export const eventTypeSelect = {
   description: true,
   interfaceLanguage: true,
   hidden: true,
+  isPinned: true,
   slug: true,
   length: true,
   title: true,

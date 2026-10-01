@@ -68,6 +68,9 @@ export const getEventTypesFromGroup = async ({
           },
           orderBy: [
             {
+              isPinned: "desc",
+            },
+            {
               position: "desc",
             },
             {
@@ -91,6 +94,9 @@ export const getEventTypesFromGroup = async ({
           },
           orderBy: [
             {
+              isPinned: "desc",
+            },
+            {
               position: "desc",
             },
             {
@@ -104,7 +110,11 @@ export const getEventTypesFromGroup = async ({
     ]);
 
     const userEventTypes = [...(nonChildEventTypes ?? []), ...(childEventTypes ?? [])].sort((a, b) => {
-      // First sort by position in descending order
+      // Pinned personal event types are listed first so they always land on the first pages
+      if (a.isPinned !== b.isPinned) {
+        return a.isPinned ? -1 : 1;
+      }
+      // Then sort by position in descending order
       if (a.position !== b.position) {
         return b.position - a.position;
       }
