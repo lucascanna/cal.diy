@@ -1,6 +1,6 @@
 import { useRouterQuery } from "@calcom/lib/hooks/useRouterQuery";
 import { render } from "@testing-library/react";
-import { describe, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import UserPage from "./users-public-view";
 
 vi.mock("@calcom/lib/constants", async () => {
@@ -53,9 +53,35 @@ function mockedUserPageComponentProps(props: Partial<React.ComponentProps<typeof
       considerUnpublished: false,
       ...(props.entity ?? null),
     },
-    eventTypes: [],
+    eventTypes: props.eventTypes ?? [],
     isOrgSEOIndexable: false,
   } satisfies React.ComponentProps<typeof UserPage>;
+}
+
+function mockedEventType(
+  overrides: Partial<React.ComponentProps<typeof UserPage>["eventTypes"][number]>
+): React.ComponentProps<typeof UserPage>["eventTypes"][number] {
+  return {
+    id: 1,
+    title: "Intro call",
+    badgeLabel: null,
+    slug: "intro-call",
+    length: 30,
+    hidden: false,
+    lockTimeZoneToggleOnBookingPage: false,
+    lockedTimeZone: null,
+    requiresConfirmation: false,
+    canSendCalVideoTranscriptionEmails: true,
+    requiresBookerEmailVerification: false,
+    price: 0,
+    currency: "usd",
+    recurringEvent: null,
+    seatsPerTimeSlot: null,
+    schedulingType: null,
+    metadata: {},
+    descriptionAsSafeHTML: "",
+    ...overrides,
+  };
 }
 
 describe("UserPage Component", () => {
@@ -74,5 +100,28 @@ describe("UserPage Component", () => {
     });
 
     expect(() => render(<UserPage {...mockData.props} />)).not.toThrow();
+  });
+
+  it("shows the badge beside the title only for event types that have one", () => {
+    vi.mocked(useRouterQuery).mockReturnValue({});
+
+    const { getAllByTestId } = render(
+      <UserPage
+        {...mockedUserPageComponentProps({
+          eventTypes: [
+            mockedEventType({ id: 1, title: "Intro call", badgeLabel: "Free consultation" }),
+            mockedEventType({ id: 2, title: "Deep dive", slug: "deep-dive", badgeLabel: null }),
+          ],
+        })}
+      />
+    );
+
+    const badges = getAllByTestId("event-type-badge");
+    expect(badges).toHaveLength(1);
+    expect(badges[0].textContent).toBe("Free consultation");
+
+    const [badgedCard, plainCard] = getAllByTestId("event-type-link");
+    expect(badgedCard.textContent).toContain("Free consultation");
+    expect(plainCard.querySelector('[data-testid="event-type-badge"]')).toBeNull();
   });
 });

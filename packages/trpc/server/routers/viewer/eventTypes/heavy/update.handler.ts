@@ -92,6 +92,7 @@ export const updateHandler = async ({ ctx, input }: UpdateOptions) => {
     calVideoSettings,
     hostGroups,
     enablePerHostLocations,
+    badgeLabel,
     ...rest
   } = input;
 
@@ -192,6 +193,14 @@ export const updateHandler = async ({ ctx, input }: UpdateOptions) => {
   }
 
   const teamId = input.teamId || eventType.team?.id;
+
+  if (badgeLabel && teamId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Badge labels are only available on personal event types.",
+    });
+  }
+
   const guestsField = bookingFields?.find((field) => field.name === "guests");
 
   ensureUniqueBookingFields(bookingFields);
@@ -234,6 +243,7 @@ export const updateHandler = async ({ ctx, input }: UpdateOptions) => {
     seatsPerTimeSlot,
     maxLeadThreshold: isLoadBalancingDisabled ? null : rest.maxLeadThreshold,
     ...(enablePerHostLocations !== undefined && { enablePerHostLocations }),
+    ...(badgeLabel !== undefined && { badgeLabel }),
   };
   data.locations = locations ?? undefined;
 

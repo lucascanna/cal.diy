@@ -11,6 +11,7 @@ import { markdownToSafeHTMLClient } from "@calcom/lib/markdownToSafeHTMLClient";
 import { CURRENT_TIMEZONE } from "@calcom/lib/timezoneConstants";
 import type { EventTypeTranslation } from "@calcom/prisma/client";
 import { EventTypeAutoTranslatedField } from "@calcom/prisma/enums";
+import { Badge } from "@calcom/ui/components/badge";
 import { EventMetaBlock } from "@calcom/web/modules/bookings/components/event-meta/Details";
 import { SeatsAvailabilityText } from "@calcom/web/modules/bookings/components/SeatsAvailabilityText";
 import { m } from "framer-motion";
@@ -70,6 +71,7 @@ export const EventMeta = ({
     | "entity"
     | "description"
     | "title"
+    | "badgeLabel"
     | "metadata"
     | "locations"
     | "currency"
@@ -173,9 +175,16 @@ export const EventMeta = ({
             roundRobinHideOrgAndTeam={roundRobinHideOrgAndTeam}
             hideOrgTeamAvatar={hideOrgTeamAvatar}
           />
-          <EventTitle className={`${classNames?.eventMetaTitle} my-2`}>
-            {translatedTitle ?? event?.title}
-          </EventTitle>
+          <div className="flex flex-wrap items-center gap-x-2">
+            <EventTitle className={`${classNames?.eventMetaTitle} my-2`}>
+              {translatedTitle ?? event?.title}
+            </EventTitle>
+            {event.badgeLabel && (
+              <Badge variant="blue" data-testid="event-meta-badge">
+                {event.badgeLabel}
+              </Badge>
+            )}
+          </div>
           {(event.description || translatedDescription) && (
             <EventMetaBlock data-testid="event-meta-description" contentClassName="mb-8">
               <ScrollableWithGradients

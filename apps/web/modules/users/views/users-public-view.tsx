@@ -9,6 +9,7 @@ import {
 import { useRouterQuery } from "@calcom/lib/hooks/useRouterQuery";
 import useTheme from "@calcom/lib/hooks/useTheme";
 import { UserAvatar } from "@calcom/ui/components/avatar";
+import { Badge } from "@calcom/ui/components/badge";
 import { Icon } from "@calcom/ui/components/icon";
 import { OrgBanner } from "@calcom/ui/components/organization-banner";
 import { UnpublishedEntity } from "@calcom/ui/components/unpublished-entity";
@@ -140,6 +141,11 @@ export function UserPage(props: PageProps) {
                 <div className="block w-full p-5">
                   <div className="flex flex-wrap items-center">
                     <h2 className="text-default pr-2 text-sm font-semibold">{type.title}</h2>
+                    {type.badgeLabel && (
+                      <Badge variant="blue" data-testid="event-type-badge">
+                        {type.badgeLabel}
+                      </Badge>
+                    )}
                   </div>
                   <EventTypeDescription eventType={type} isPublic={true} shortenDescription />
                 </div>

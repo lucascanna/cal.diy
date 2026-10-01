@@ -160,6 +160,7 @@ model EventType {
   /// @zod.import(["import { eventTypeSlug } from '../../zod-utils'"]).custom.use(eventTypeSlug)
   slug              String
   description       String?
+  badgeLabel        String?
   interfaceLanguage String?
   position          Int     @default(0)
   /// @zod.import(["import { eventTypeLocations } from '../../zod-utils'"]).custom.use(eventTypeLocations)
