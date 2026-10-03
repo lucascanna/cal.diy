@@ -94,7 +94,8 @@ const EventTypeAppSettingsForm = forwardRef<HTMLButtonElement, EventTypeAppSetti
         }}>
         <div>
           <div className="sm:border-subtle bg-default relative border p-4 dark:bg-black sm:rounded-md">
-            <div>
+            {/* Right padding keeps wrapped text clear of the absolutely positioned remove icon */}
+            <div className="wrap-break-word pr-6">
               <span className="text-default font-semibold ltr:mr-1 rtl:ml-1">{eventType.title}</span>{" "}
               <small className="text-subtle hidden font-normal sm:inline">
                 /{eventType.team ? eventType.team.slug : props.userName}/{eventType.slug}

@@ -56,9 +56,9 @@ const EventTypeCard: FC<EventTypeCardProps> = ({
         className="bg-default border-default h-4 w-4 shrink-0 cursor-pointer rounded-cal checked:border-transparent checked:bg-gray-800 border ring-offset-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed"
         type="checkbox"
       />
-      <label htmlFor={`${id}`} className="cursor-pointer text-sm">
+      <label htmlFor={`${id}`} className="min-w-0 cursor-pointer text-sm">
         <li>
-          <div>
+          <div className="wrap-break-word">
             <span className="text-default font-semibold ltr:mr-1 rtl:ml-1">{title}</span>{" "}
             <small className="text-subtle hidden font-normal sm:inline">
               /{team ? team.slug : userName}/{slug}
