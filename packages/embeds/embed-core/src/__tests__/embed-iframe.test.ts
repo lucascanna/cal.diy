@@ -415,4 +415,53 @@ describe("embed-iframe", async () => {
       expect(embedStore.uiConfig?.useSlotsViewOnSmallScreen).toBe(false);
     });
   });
+
+  describe("document scrollbar", () => {
+    beforeEach(() => {
+      vi.resetModules();
+      vi.useRealTimers();
+      Object.defineProperty(window, "top", {
+        value: {},
+        writable: true,
+        configurable: true,
+      });
+      Object.defineProperty(window, "isEmbed", {
+        value: () => true,
+        writable: true,
+        configurable: true,
+      });
+      window.getEmbedNamespace = vi.fn(() => "default");
+      window.getEmbedTheme = vi.fn(() => null);
+    });
+
+    afterEach(() => {
+      document.documentElement.removeAttribute("style");
+      vi.resetModules();
+      vi.clearAllMocks();
+    });
+
+    it("should hide the document scrollbar for an inline embed", async () => {
+      fakeCurrentDocumentUrl({ params: { embedType: "inline" } });
+      await import("../embed-iframe");
+
+      expect(document.documentElement.style.getPropertyValue("scrollbar-width")).toBe("none");
+    });
+
+    it("should keep the document scrollbar for a modal embed, whose iframe height is capped", async () => {
+      fakeCurrentDocumentUrl({ params: { embedType: "modal" } });
+      await import("../embed-iframe");
+
+      expect(document.documentElement.style.getPropertyValue("scrollbar-width")).toBe("");
+    });
+
+    it("should keep the document scrollbar when the embedded page failed to load", async () => {
+      const originalPageStatus = window.CalComPageStatus;
+      window.CalComPageStatus = "404";
+      fakeCurrentDocumentUrl({ params: { embedType: "inline" } });
+      await import("../embed-iframe");
+
+      expect(document.documentElement.style.getPropertyValue("scrollbar-width")).toBe("");
+      window.CalComPageStatus = originalPageStatus;
+    });
+  });
 });

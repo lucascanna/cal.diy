@@ -655,8 +655,21 @@ function initializeAndSetupEmbed() {
     handlePageError(pageStatus);
     return;
   } else {
+    if (getEmbedType() === "inline") {
+      hideDocumentScrollbar();
+    }
     keepParentInformedAboutDimensionChanges({ embedStore });
   }
+}
+
+/**
+ * The parent sizes an inline embed's iframe to fit its content, so the document never needs a scrollbar of its own.
+ * A classic scrollbar takes layout width though: it shows up for the few frames before the parent catches up with a taller page,
+ * narrows the content, and width-dependent content (e.g. square calendar day cells) changes height again, so the layout jumps
+ * between two widths while switching dates. Without the scrollbar the document can still be scrolled if it ever outgrows the iframe.
+ */
+function hideDocumentScrollbar(): void {
+  document.documentElement.style.scrollbarWidth = "none";
 }
 
 function runAllUiSetters(uiConfig: UiConfig) {
