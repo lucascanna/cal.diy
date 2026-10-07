@@ -150,12 +150,12 @@ describe("getCalendarLinks", () => {
 
     const googleLink = result.find((link) => link.id === CalendarLinkType.GOOGLE_CALENDAR);
     expect(googleLink?.link).toContain(`details=${encodeURIComponent(eventType.description)}`);
-    expect(googleLink?.link).toContain(`text=${customTitle}`);
+    expect(googleLink?.link).toContain(`text=${encodeURIComponent(customTitle)}`);
 
     // Check Office 365 link
     const microsoftOfficeLink = result.find((link) => link.id === CalendarLinkType.MICROSOFT_OFFICE);
     expect(microsoftOfficeLink?.link).toContain("body=Test%20Description");
-    expect(microsoftOfficeLink?.link).toContain(`subject=${customTitle}`);
+    expect(microsoftOfficeLink?.link).toContain(`subject=${encodeURIComponent(customTitle)}`);
 
     // Check Outlook link
     const microsoftOutlookLink = result.find((link) => link.id === CalendarLinkType.MICROSOFT_OUTLOOK);
@@ -186,6 +186,116 @@ describe("getCalendarLinks", () => {
 
     expect(googleLink).toBeDefined();
     expect(googleLink?.link).toContain(`recur=${encodeURIComponent(mockRRuleString)}`);
+  });
+
+  describe("URL encoding of the event name and description", () => {
+    const providers = [
+      {
+        id: CalendarLinkType.GOOGLE_CALENDAR,
+        titleParam: "text",
+        bodyParam: "details",
+        params: ["dates", "details", "text"],
+      },
+      {
+        id: CalendarLinkType.MICROSOFT_OFFICE,
+        titleParam: "subject",
+        bodyParam: "body",
+        params: ["body", "enddt", "path", "rru", "startdt", "subject"],
+      },
+      {
+        id: CalendarLinkType.MICROSOFT_OUTLOOK,
+        titleParam: "subject",
+        bodyParam: "body",
+        params: ["body", "enddt", "path", "rru", "startdt", "subject"],
+      },
+    ];
+
+    const getLinkUrl = ({
+      eventName,
+      description,
+      videoCallUrl,
+      id,
+    }: {
+      eventName: string;
+      description: string;
+      videoCallUrl?: string;
+      id: CalendarLinkType;
+    }) => {
+      const result = getCalendarLinks({
+        booking: { ...baseMockBooking, metadata: videoCallUrl ? { videoCallUrl } : {} },
+        eventType: { ...baseMockEventType, recurringEvent: null, eventName, description },
+        t: mockT,
+      });
+      const link = result.find((calendarLink) => calendarLink.id === id)?.link ?? "";
+      return { link, url: new URL(link) };
+    };
+
+    it.each(providers)("$id keeps reserved characters and Unicode in the title and description", ({
+      id,
+      titleParam,
+      bodyParam,
+      params,
+    }) => {
+      const eventName = "Q&A #1 + 100% é";
+      const description = "a&b=c";
+
+      const { url } = getLinkUrl({ eventName, description, id });
+
+      expect(url.searchParams.get(titleParam)).toBe(eventName);
+      expect(url.searchParams.get(bodyParam)).toBe(description);
+      expect(url.hash).toBe("");
+      expect([...url.searchParams.keys()].sort()).toEqual(params);
+    });
+
+    it.each(providers)("$id encodes the title exactly once, so literal percent sequences survive", ({
+      id,
+      titleParam,
+      bodyParam,
+    }) => {
+      const eventName = "Sale: 50% off %20 %26 日本語 📅";
+      const description = "Already encoded? a%26b%3Dc";
+
+      const { link, url } = getLinkUrl({ eventName, description, id });
+
+      expect(link).toContain(`${titleParam}=${encodeURIComponent(eventName)}`);
+      expect(url.searchParams.get(titleParam)).toBe(eventName);
+      expect(url.searchParams.get(bodyParam)).toBe(description);
+    });
+
+    it("keeps the Google Calendar dates and location parameters intact", () => {
+      const videoCallUrl = "https://meet.example.com/j/123?pwd=a&b=c#start";
+
+      const { url } = getLinkUrl({
+        eventName: "Q&A #1",
+        description: "a&b=c",
+        videoCallUrl,
+        id: CalendarLinkType.GOOGLE_CALENDAR,
+      });
+
+      expect(url.searchParams.get("dates")).toBe("20230115T100000Z/20230115T110000Z");
+      expect(url.searchParams.get("location")).toBe(videoCallUrl);
+    });
+
+    it.each([
+      CalendarLinkType.MICROSOFT_OFFICE,
+      CalendarLinkType.MICROSOFT_OUTLOOK,
+    ])("%s keeps the path, date and location parameters intact without double encoding", (id) => {
+      const videoCallUrl = "https://meet.example.com/j/123?pwd=a&b=c#start";
+
+      const { link, url } = getLinkUrl({
+        eventName: "Q&A #1",
+        description: "a&b=c",
+        videoCallUrl,
+        id,
+      });
+
+      expect(url.searchParams.get("path")).toBe("/calendar/action/compose");
+      expect(url.searchParams.get("rru")).toBe("addevent");
+      expect(url.searchParams.get("startdt")).toBe("2023-01-15T10:00:00Z");
+      expect(url.searchParams.get("enddt")).toBe("2023-01-15T11:00:00Z");
+      expect(url.searchParams.get("location")).toBe(videoCallUrl);
+      expect(link).not.toContain("%25");
+    });
   });
 
   it("should handle error in ICS generation", async () => {
