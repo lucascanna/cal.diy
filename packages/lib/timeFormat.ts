@@ -1,12 +1,23 @@
 /*
  * Detects navigator locale 24h time preference
- * It works by checking whether hour output contains AM ('1 AM' or '01 h')
- * based on the user's preferred language
- * defaults to 'en-US' (12h) if no navigator language is found
+ * It works by reading the hour cycle Intl resolves for the user's preferred language
+ * (h23/h24 = 24h, h11/h12 = 12h), falling back to hour12 and then to checking
+ * whether hour output contains AM ('1 AM' or '01 h') on engines that report neither
  */
 import { localStorage } from "@calcom/lib/webstorage";
 
 const is24hLocalstorageKey = "timeOption.is24hClock";
+
+const isBrowserLocaleHourCycle24h = (): boolean => {
+  // Intl.DateTimeFormat with value=undefined uses local browser settings.
+  const formatter = new Intl.DateTimeFormat(undefined, { hour: "numeric" });
+  const { hourCycle, hour12 } = formatter.resolvedOptions();
+  if (hourCycle) return hourCycle === "h23" || hourCycle === "h24";
+  if (typeof hour12 === "boolean") return !hour12;
+  // Only recognises Latin AM/PM markers, so it misreads 12h locales such as ar, el, zh-TW and ko-KR.
+  // Kept for engines that resolve neither hourCycle nor hour12.
+  return !/M/i.test(formatter.format(0));
+};
 
 export enum TimeFormat {
   TWELVE_HOUR = "h:mma",
@@ -41,14 +52,9 @@ export const isBrowserLocale24h = () => {
   } else if (localStorageTimeFormat === false) {
     return false;
   }
-  // Intl.DateTimeFormat with value=undefined uses local browser settings.
-  if (!!new Intl.DateTimeFormat(undefined, { hour: "numeric" }).format(0).match(/M/i)) {
-    setIs24hClockInLocalStorage(false);
-    return false;
-  } else {
-    setIs24hClockInLocalStorage(true);
-    return true;
-  }
+  const is24h = isBrowserLocaleHourCycle24h();
+  setIs24hClockInLocalStorage(is24h);
+  return is24h;
 };
 
 /**
