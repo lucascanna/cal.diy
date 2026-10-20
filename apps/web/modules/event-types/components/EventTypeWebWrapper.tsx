@@ -4,6 +4,7 @@ import { useEventTypeForm } from "@calcom/atoms/event-types/hooks/useEventTypeFo
 import { useHandleRouteChange } from "@calcom/atoms/event-types/hooks/useHandleRouteChange";
 import { useTabsNavigations } from "@calcom/atoms/event-types/hooks/useTabsNavigations";
 import type { ChildrenEventType } from "@calcom/features/eventtypes/components/ChildrenEventTypeSelect";
+import { getSavedEventTypeTitle } from "@calcom/features/eventtypes/lib/getSavedEventTypeTitle";
 import type { EventTypeSetupProps } from "@calcom/features/eventtypes/lib/types";
 import { WEBSITE_URL } from "@calcom/lib/constants";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
@@ -60,7 +61,6 @@ const EventAppsTab = dynamic(() => import("./tabs/apps/EventAppsTab").then((mod)
 const EventWebhooksTab = dynamic(() =>
   import("./tabs/webhooks/EventWebhooksTab").then((mod) => mod.EventWebhooksTab)
 );
-
 
 export type EventTypeWebWrapperProps = {
   id: number;
@@ -125,7 +125,7 @@ const EventTypeWeb = ({
   });
 
   const updateMutation = trpc.viewer.eventTypesHeavy.update.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
       const currentValues = form.getValues();
 
       currentValues.children = currentValues.children.map((child) => ({
@@ -141,7 +141,11 @@ const EventTypeWeb = ({
         // When an event-type is updated,
         // guests could still hit a stale cache and see the old page.
       }
-      showToast(t("event_type_updated_successfully", { eventTypeTitle: eventType.title }), "success");
+      const eventTypeTitle = getSavedEventTypeTitle({
+        submittedTitle: variables.title,
+        formTitle: currentValues.title,
+      });
+      showToast(t("event_type_updated_successfully", { eventTypeTitle }), "success");
     },
     async onSettled() {
       await utils.viewer.eventTypes.get.invalidate();
@@ -278,16 +282,7 @@ const EventTypeWeb = ({
 
   const querySchema = z.object({
     tabName: z
-      .enum([
-        "setup",
-        "availability",
-        "team",
-        "limits",
-        "advanced",
-        "recurring",
-        "apps",
-        "webhooks",
-      ])
+      .enum(["setup", "availability", "team", "limits", "advanced", "recurring", "apps", "webhooks"])
       .optional()
       .default("setup"),
   });
