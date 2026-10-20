@@ -150,17 +150,53 @@ describe("getCalendarLinks", () => {
 
     const googleLink = result.find((link) => link.id === CalendarLinkType.GOOGLE_CALENDAR);
     expect(googleLink?.link).toContain(`details=${encodeURIComponent(eventType.description)}`);
-    expect(googleLink?.link).toContain(`text=${customTitle}`);
+    expect(googleLink?.link).toContain(`text=${encodeURIComponent(customTitle)}`);
 
     // Check Office 365 link
     const microsoftOfficeLink = result.find((link) => link.id === CalendarLinkType.MICROSOFT_OFFICE);
     expect(microsoftOfficeLink?.link).toContain("body=Test%20Description");
-    expect(microsoftOfficeLink?.link).toContain(`subject=${customTitle}`);
+    expect(microsoftOfficeLink?.link).toContain(`subject=${encodeURIComponent(customTitle)}`);
 
     // Check Outlook link
     const microsoftOutlookLink = result.find((link) => link.id === CalendarLinkType.MICROSOFT_OUTLOOK);
     expect(microsoftOutlookLink?.link).toContain("body=Test%20Description");
     expect(microsoftOutlookLink?.link).toContain(`subject=${encodeURIComponent(customTitle)}`);
+  });
+
+  describe("reserved URL characters", () => {
+    const eventName = "Q&A #1 + C++ = 100%";
+    const description = "a&b=c #notes + more?";
+    const videoCallUrl = "https://example.com/room?a=1&b=2#join";
+
+    const getLink = (id: CalendarLinkType): string =>
+      getCalendarLinks({
+        booking: { ...baseMockBooking, metadata: { videoCallUrl } },
+        eventType: { ...baseMockEventType, eventName, description },
+        t: mockT,
+      }).find((link) => link.id === id)?.link ?? "";
+
+    it.each([
+      { id: CalendarLinkType.GOOGLE_CALENDAR, titleParam: "text", descriptionParam: "details" },
+      { id: CalendarLinkType.MICROSOFT_OFFICE, titleParam: "subject", descriptionParam: "body" },
+      { id: CalendarLinkType.MICROSOFT_OUTLOOK, titleParam: "subject", descriptionParam: "body" },
+    ])("$id link passes the full title, description and location", ({ id, titleParam, descriptionParam }) => {
+      const link = getLink(id);
+      const url = new URL(link);
+
+      expect(url.hash).toBe("");
+      expect(url.searchParams.get(titleParam)).toBe(eventName);
+      expect(url.searchParams.get(descriptionParam)).toBe(description);
+      expect(url.searchParams.get("location")).toBe(videoCallUrl);
+      // A raw "+" is read as a space by the calendar sites, so spaces must be %20 and "+" must be %2B
+      expect(link).not.toContain("+");
+    });
+
+    it.each([
+      CalendarLinkType.MICROSOFT_OFFICE,
+      CalendarLinkType.MICROSOFT_OUTLOOK,
+    ])("%s link passes the compose path once decoded", (id) => {
+      expect(new URL(getLink(id)).searchParams.get("path")).toBe("/calendar/action/compose");
+    });
   });
 
   it("should handle recurring events - Only Google Calendar supports at the moment", async () => {
