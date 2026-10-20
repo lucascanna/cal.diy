@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { createWithEqualityFn } from "zustand/traditional";
 import type { GetBookingType } from "../lib/get-booking";
 import type { BookerLayout, BookerState } from "./types";
+import { parseDateParam, parseMonthParam } from "./utils/parseBookerDateParams";
 import { getQueryParam, removeQueryParam, updateQueryParam } from "./utils/query-param";
 
 const _iso_3166_1_alpha_2_codes = [
@@ -454,7 +455,7 @@ export const createBookerStore = () =>
       }
       return set({ layout });
     },
-    selectedDate: getQueryParam("date") || null,
+    selectedDate: parseDateParam(getQueryParam("date")),
     setSelectedDate: ({ date: selectedDate, omitUpdatingParams = false, preventMonthSwitching = false }) => {
       // unset selected date
       if (!selectedDate) {
@@ -518,10 +519,8 @@ export const createBookerStore = () =>
       set({ verificationCode: code });
     },
     month:
-      getQueryParam("month") ||
-      (getQueryParam("date") && dayjs(getQueryParam("date")).isValid()
-        ? dayjs(getQueryParam("date")).format("YYYY-MM")
-        : null) ||
+      parseMonthParam(getQueryParam("month")) ??
+      parseDateParam(getQueryParam("date"))?.slice(0, 7) ??
       dayjs().format("YYYY-MM"),
     setMonth: (month: string | null) => {
       if (!month) {
@@ -625,6 +624,14 @@ export const createBookerStore = () =>
         defaultPhoneCountry,
       });
 
+      // The initial month and date already ignore these values, so the URL should not keep them either.
+      if (!isPlatform || allowUpdatingUrlParams) {
+        const monthQueryParam = getQueryParam("month");
+        if (monthQueryParam && !parseMonthParam(monthQueryParam)) removeQueryParam("month");
+        const dateQueryParam = getQueryParam("date");
+        if (dateQueryParam && !parseDateParam(dateQueryParam)) removeQueryParam("date");
+      }
+
       if (durationConfig?.includes(Number(getQueryParam("duration")))) {
         set({
           selectedDuration: Number(getQueryParam("duration")),
@@ -640,7 +647,8 @@ export const createBookerStore = () =>
       if (rescheduleUid && bookingData) {
         set({ selectedTimeslot: null });
       }
-      if (month) set({ month });
+      const validMonth = parseMonthParam(month);
+      if (validMonth) set({ month: validMonth });
 
       //removeQueryParam("layout");
     },
