@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 import type { RouteHas } from "next/dist/lib/load-custom-routes";
 import { withAxiom } from "next-axiom";
 import i18nConfig from "@calcom/i18n/next-i18next.config";
+import { getAllowedDevOrigins } from "./allowedDevOrigins";
 import packageJson from "./package.json";
 import {
   nextJsOrgRewriteConfig,
@@ -223,6 +224,7 @@ const nextConfig = (phase: string): NextConfig => {
 
   return {
     output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
+    allowedDevOrigins: getAllowedDevOrigins(process.env.NEXT_PUBLIC_WEBAPP_URL),
     serverExternalPackages: [
       "deasync",
       "http-cookie-agent",
