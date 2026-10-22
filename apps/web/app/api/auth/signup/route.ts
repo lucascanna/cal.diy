@@ -1,6 +1,7 @@
 import { defaultResponderForAppDir } from "app/api/defaultResponderForAppDir";
 import { parseRequestData } from "app/api/parseRequestData";
 import { NextResponse, type NextRequest } from "next/server";
+import { captureException } from "@sentry/nextjs";
 
 import calcomSignupHandler from "./handlers/calcomSignupHandler";
 import selfHostedSignupHandler from "./handlers/selfHostedHandler";
@@ -72,6 +73,8 @@ async function handler(req: NextRequest) {
       return NextResponse.json({ message: e.message }, { status: e.statusCode });
     }
     logger.error(e);
+    // The catch keeps the error from reaching defaultResponderForAppDir, which reports to Sentry.
+    captureException(e);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
