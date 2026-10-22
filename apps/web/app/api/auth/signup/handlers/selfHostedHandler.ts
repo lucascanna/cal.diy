@@ -23,8 +23,26 @@ import { NextResponse } from "next/server";
 import { getUserRepository } from "@calcom/features/di/containers/UserRepository";
 import { CreationSource } from "@calcom/prisma/enums";
 
+type SignupWelcomeCopy = {
+  message: string;
+};
+
+const SIGNUP_WELCOME_LANGUAGES = new Set(["en", "it", "es"]);
+
+const SIGNUP_WELCOME_COPY: Record<string, SignupWelcomeCopy> = {
+  en: { message: "Welcome! Your account is ready." },
+  "it-IT": { message: "Benvenuto! Il tuo account è pronto." },
+  "es-ES": { message: "¡Te damos la bienvenida! Tu cuenta está lista." },
+};
+
+function getSignupWelcomeMessage(language?: string): string {
+  const welcomeLanguage = language && SIGNUP_WELCOME_LANGUAGES.has(language) ? language : "en";
+  return SIGNUP_WELCOME_COPY[welcomeLanguage].message;
+}
+
 export default async function handler(body: Record<string, string>) {
   const { email, password, language, token } = signupSchema.parse(body);
+  const welcomeMessage = getSignupWelcomeMessage(language);
 
   const userRepository = getUserRepository()
 
@@ -191,5 +209,5 @@ export default async function handler(body: Record<string, string>) {
     });
   }
 
-  return NextResponse.json({ message: "Created user" }, { status: 201 });
+  return NextResponse.json({ message: "Created user", welcomeMessage }, { status: 201 });
 }

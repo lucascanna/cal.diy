@@ -4635,5 +4635,6 @@
   "paypal_step_7": "Deberías estar todo configurado después de esto.",
   "dashboard": "panel de control",
   "paypal_webhook_reminder": "Nuestra integración crea un webhook específico en tu cuenta de PayPal que usamos para reportar transacciones a nuestro sistema. Si eliminas este webhook, no podremos reportar y deberías desinstalar y volver a instalar la aplicación para que funcione correctamente. Desinstalar la aplicación no eliminará tu configuración actual de precio/moneda del tipo de evento, pero no podrás recibir reservas.",
+  "signup_welcome_line": "¡Te damos la bienvenida! Configurar tu cuenta lleva menos de un minuto.",
   "ADD_NEW_STRINGS_ABOVE_THIS_LINE_TO_PREVENT_MERGE_CONFLICTS": "↑↑↑↑↑↑↑↑↑↑↑↑↑ Agregue sus nuevas cadenas arriba ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑"
 }

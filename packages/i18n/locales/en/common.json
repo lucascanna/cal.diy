@@ -4774,5 +4774,6 @@
   "event_type_badge": "Badge",
   "event_type_badge_placeholder": "e.g. Popular or Free consultation",
   "event_type_badge_hint": "Shown next to the title on your public page and booking page. Up to {{max}} characters. Leave empty to remove it.",
+  "signup_welcome_line": "Welcome! Setting up your account takes less than a minute.",
   "ADD_NEW_STRINGS_ABOVE_THIS_LINE_TO_PREVENT_MERGE_CONFLICTS": "↑↑↑↑↑↑↑↑↑↑↑↑↑ Add your new strings above here ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑"
 }

@@ -429,6 +429,11 @@ export default function Signup({
                       })}
                     </p>
                   )}
+                  <p
+                    className="font-medium text-base text-subtle leading-5"
+                    data-testid="signup-welcome-line">
+                    {t("signup_welcome_line")}
+                  </p>
                   {IS_CALCOM && (
                     <div className="mt-12">
                       <SelectField

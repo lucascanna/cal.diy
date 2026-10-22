@@ -4635,5 +4635,6 @@
   "paypal_step_7": "Dovresti essere pronto dopo questo.",
   "dashboard": "dashboard",
   "paypal_webhook_reminder": "La nostra integrazione crea un webhook specifico sul tuo account PayPal che utilizziamo per comunicare le transazioni al nostro sistema. Se elimini questo webhook, non saremo in grado di comunicare e dovrai disinstallare e reinstallare l'app affinché funzioni correttamente. La disinstallazione dell'app non eliminerà la configurazione attuale di prezzo/valuta del tipo di evento, ma non potrai ricevere prenotazioni.",
+  "signup_welcome_line": "Benvenuto! Configurare il tuo account richiede meno di un minuto.",
   "ADD_NEW_STRINGS_ABOVE_THIS_LINE_TO_PREVENT_MERGE_CONFLICTS": "↑↑↑↑↑↑↑↑↑↑↑↑↑ Aggiungi le tue nuove stringhe qui sopra ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑"
 }
