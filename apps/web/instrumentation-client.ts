@@ -1,10 +1,14 @@
 // This file configures the initialization of Sentry on the client.
 // The added config here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
+//biome-ignore-all lint/correctness/noProcessGlobal: Next.js inlines NEXT_PUBLIC_* only on the global process.env
+//biome-ignore-all lint/style/noProcessEnv: Next.js inlines NEXT_PUBLIC_* only on the global process.env
 import * as Sentry from "@sentry/nextjs";
 import { initBotId } from "botid/client/core";
+import posthog from "posthog-js";
 
-if (process.env.NODE_ENV === "production") {
+// The DSN is the switch, not NODE_ENV: preview environments run `next dev` and still need error reporting.
+if (process.env.NEXT_PUBLIC_SENTRY_DSN_CLIENT) {
   Sentry.init({
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN_CLIENT,
 
@@ -44,10 +48,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-export function onRouterTransitionStart(url: string, navigationType: "push" | "replace" | "traverse") {
-  if (process.env.NODE_ENV === "production") {
-    Sentry.captureRouterTransitionStart(url, navigationType);
-  }
+// Initialized here so it runs once before hydration: client modules call posthog.capture on the shared singleton.
+if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+    ...(process.env.NEXT_PUBLIC_POSTHOG_HOST ? { api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST } : {}),
+    defaults: "2025-05-24",
+  });
 }
 
 if (
@@ -64,4 +70,10 @@ if (
       },
     ],
   });
+}
+
+export function onRouterTransitionStart(url: string, navigationType: "push" | "replace" | "traverse"): void {
+  if (process.env.NEXT_PUBLIC_SENTRY_DSN_CLIENT) {
+    Sentry.captureRouterTransitionStart(url, navigationType);
+  }
 }
