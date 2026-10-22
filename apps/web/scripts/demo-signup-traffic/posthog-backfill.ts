@@ -166,6 +166,7 @@ async function sendBatches({
   events,
   batchSize = 500,
   fetchImpl = fetch,
+  requestTimeoutMs = 30_000,
   onBatch,
 }: {
   host: string;
@@ -173,23 +174,37 @@ async function sendBatches({
   events: PostHogEvent[];
   batchSize?: number;
   fetchImpl?: typeof fetch;
+  requestTimeoutMs?: number;
   onBatch?: (sent: number, total: number) => void;
 }): Promise<void> {
   const endpoint = `${host.replace(/\/+$/, "")}/batch/`;
   const total = Math.ceil(events.length / batchSize);
   for (let index = 0; index < total; index++) {
     const batch = events.slice(index * batchSize, (index + 1) * batchSize);
-    const response = await fetchImpl(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      // historical_migration routes past-dated events to PostHog's backfill pipeline.
-      body: JSON.stringify({ api_key: apiKey, historical_migration: true, batch }),
-    });
-    if (!response.ok) {
-      const detail = await response.text();
+    // One deadline covers the request and the reading of its answer, so a stalled response cannot hang the run.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), requestTimeoutMs);
+    try {
+      const response = await fetchImpl(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // historical_migration routes past-dated events to PostHog's backfill pipeline.
+        body: JSON.stringify({ api_key: apiKey, historical_migration: true, batch }),
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(
+          `PostHog rejected batch ${index + 1} of ${total} at ${endpoint}: HTTP ${response.status} ${detail}`
+        );
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) throw error;
       throw new Error(
-        `PostHog rejected batch ${index + 1} of ${total} at ${endpoint}: HTTP ${response.status} ${detail}`
+        `PostHog did not answer batch ${index + 1} of ${total} at ${endpoint} within ${requestTimeoutMs} ms`
       );
+    } finally {
+      clearTimeout(timer);
     }
     onBatch?.(index + 1, total);
   }

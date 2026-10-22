@@ -105,6 +105,24 @@ describe("sendBatches", () => {
       "PostHog rejected batch 1 of 1 at https://eu.i.posthog.com/batch/: HTTP 401 invalid key"
     );
   });
+
+  it("stops with the batch, the endpoint and the timeout when PostHog never answers", async () => {
+    const fetchImpl = vi.fn(
+      (_url: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => reject(new Error("aborted")));
+        })
+    );
+    await expect(
+      sendBatches({
+        host: "https://eu.i.posthog.com",
+        apiKey: "phc_test",
+        events,
+        fetchImpl,
+        requestTimeoutMs: 20,
+      })
+    ).rejects.toThrow("PostHog did not answer batch 1 of 1 at https://eu.i.posthog.com/batch/ within 20 ms");
+  });
 });
 
 describe("summarizeByDay", () => {
