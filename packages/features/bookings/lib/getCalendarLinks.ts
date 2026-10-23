@@ -77,10 +77,11 @@ const buildGoogleCalendarLink = ({
   const endTimeInUtcFormat = endTime.utc().format("YYYYMMDDTHHmmss[Z]");
   const recurrence = recurringEvent ? encodeURIComponent(new RRule(recurringEvent).toString()) : "";
 
+  const title = encodeURIComponent(eventName);
   const location = bookingLocation ? encodeURIComponent(bookingLocation) : "";
   const description = encodeURIComponent(eventDescription ?? "");
 
-  const googleCalendarLink = `https://calendar.google.com/calendar/r/eventedit?dates=${startTimeInUtcFormat}/${endTimeInUtcFormat}&text=${eventName}&details=${description}${
+  const googleCalendarLink = `https://calendar.google.com/calendar/r/eventedit?dates=${startTimeInUtcFormat}/${endTimeInUtcFormat}&text=${title}&details=${description}${
     location ? `&location=${location}` : ""
   }${recurrence ? `&recur=${recurrence}` : ""}`;
 
@@ -102,11 +103,11 @@ const buildMicrosoftOfficeLink = ({
 }) => {
   const startTimeInUtcFormat = startTime.utc().format();
   const endTimeInUtcFormat = endTime.utc().format();
+  const title = encodeURIComponent(eventName);
   const location = bookingLocation ? encodeURIComponent(bookingLocation) : "";
   const description = encodeURIComponent(eventDescription ?? "");
 
-  // TODO: Why do we need to encode URI this href but not the google calendar link?
-  const microsoftOfficeLink = `https://outlook.office.com/calendar/0/deeplink/compose?body=${description}&enddt=${endTimeInUtcFormat}&path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&startdt=${startTimeInUtcFormat}&subject=${eventName}${
+  const microsoftOfficeLink = `https://outlook.office.com/calendar/0/deeplink/compose?body=${description}&enddt=${endTimeInUtcFormat}&path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&startdt=${startTimeInUtcFormat}&subject=${title}${
     location ? `&location=${location}` : ""
   }`;
   return microsoftOfficeLink;
@@ -127,11 +128,13 @@ const buildMicrosoftOutlookLink = ({
 }) => {
   const startTimeInUtcFormat = startTime.utc().format();
   const endTimeInUtcFormat = endTime.utc().format();
+  const title = encodeURIComponent(eventName);
   const location = bookingLocation ? encodeURIComponent(bookingLocation) : "";
-  const microsoftOutlookLink =
-    encodeURI(
-      `https://outlook.live.com/calendar/0/deeplink/compose?body=${eventDescription}&enddt=${endTimeInUtcFormat}&path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&startdt=${startTimeInUtcFormat}&subject=${eventName}`
-    ) + (location ? `&location=${location}` : "");
+  const description = encodeURIComponent(eventDescription ?? "");
+
+  const microsoftOutlookLink = `https://outlook.live.com/calendar/0/deeplink/compose?body=${description}&enddt=${endTimeInUtcFormat}&path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&startdt=${startTimeInUtcFormat}&subject=${title}${
+    location ? `&location=${location}` : ""
+  }`;
   return microsoftOutlookLink;
 };
 
