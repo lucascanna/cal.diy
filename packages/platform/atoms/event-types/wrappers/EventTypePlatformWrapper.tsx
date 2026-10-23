@@ -1,32 +1,31 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useRef, useState, useEffect, forwardRef, useImperativeHandle, useCallback } from "react";
-
 import { BookerStoreProvider } from "@calcom/features/bookings/Booker/BookerStoreProvider";
-import type { ChildrenEventType } from "@calcom/web/modules/event-types/components/ChildrenEventTypeSelect";
-import { EventType as EventTypeComponent } from "@calcom/web/modules/event-types/components/EventType";
 import ManagedEventTypeDialog from "@calcom/features/eventtypes/components/dialogs/ManagedEventDialog";
+import { getSavedEventTypeTitle } from "@calcom/features/eventtypes/lib/getSavedEventTypeTitle";
 import type {
+  EventTypePlatformWrapperRef,
   EventTypeSetupProps,
   FormValues,
-  EventTypePlatformWrapperRef,
 } from "@calcom/features/eventtypes/lib/types";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { SchedulingType } from "@calcom/prisma/enums";
+import type { ChildrenEventType } from "@calcom/web/modules/event-types/components/ChildrenEventTypeSelect";
+import { EventType as EventTypeComponent } from "@calcom/web/modules/event-types/components/EventType";
 import type { EventAdvancedTabCustomClassNames } from "@calcom/web/modules/event-types/components/tabs/advanced/EventAdvancedTab";
 import type { EventTeamAssignmentTabCustomClassNames } from "@calcom/web/modules/event-types/components/tabs/assignment/EventTeamAssignmentTab";
 import type { EventAvailabilityTabCustomClassNames } from "@calcom/web/modules/event-types/components/tabs/availability/EventAvailabilityTab";
 import type { EventLimitsTabCustomClassNames } from "@calcom/web/modules/event-types/components/tabs/limits/EventLimitsTab";
 import type { EventRecurringTabCustomClassNames } from "@calcom/web/modules/event-types/components/tabs/recurring/RecurringEventController";
 import type { EventSetupTabCustomClassNames } from "@calcom/web/modules/event-types/components/tabs/setup/EventSetupTab";
-
+import { useQueryClient } from "@tanstack/react-query";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useDeleteEventTypeById } from "../../hooks/event-types/private/useDeleteEventTypeById";
 import { useAtomsContext } from "../../hooks/useAtomsContext";
 import { useMe } from "../../hooks/useMe";
 import { AtomsWrapper } from "../../src/components/atoms-wrapper";
 import { useToast } from "../../src/components/ui/use-toast";
-import { useAtomsEventTypeById, QUERY_KEY as ATOM_EVENT_TYPE_QUERY_KEY } from "../hooks/useAtomEventTypeById";
+import { QUERY_KEY as ATOM_EVENT_TYPE_QUERY_KEY, useAtomsEventTypeById } from "../hooks/useAtomEventTypeById";
 import { useAtomUpdateEventType } from "../hooks/useAtomUpdateEventType";
 import { useEventTypeForm } from "../hooks/useEventTypeForm";
 import { useHandleRouteChange } from "../hooks/useHandleRouteChange";
@@ -121,7 +120,7 @@ const EventType = forwardRef<
   });
 
   const updateMutation = useAtomUpdateEventType({
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
       const currentValues = form.getValues();
 
       currentValues.children = currentValues.children.map((child) => ({
@@ -133,7 +132,11 @@ const EventType = forwardRef<
       // Reset the form with these values as new default values to ensure the correct comparison for dirtyFields eval
       form.reset(currentValues);
       if (!disableToasts) {
-        toast({ description: t("event_type_updated_successfully", { eventTypeTitle: eventType.title }) });
+        const eventTypeTitle = getSavedEventTypeTitle({
+          submittedTitle: variables.title,
+          formTitle: currentValues.title,
+        });
+        toast({ description: t("event_type_updated_successfully", { eventTypeTitle }) });
       }
       onSuccess?.(currentValues);
       callbacksRef.current?.onSuccess?.();
@@ -162,7 +165,11 @@ const EventType = forwardRef<
       if (!isDryRun) {
         updateMutation.mutate(data);
       } else {
-        toast({ description: t("event_type_updated_successfully", { eventTypeTitle: eventType.title }) });
+        const eventTypeTitle = getSavedEventTypeTitle({
+          submittedTitle: data.title,
+          formTitle: form.getValues("title"),
+        });
+        toast({ description: t("event_type_updated_successfully", { eventTypeTitle }) });
         callbacksRef.current?.onSuccess?.();
       }
     },
